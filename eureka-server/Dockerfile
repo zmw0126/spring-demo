@@ -1,4 +1,4 @@
-FROM reg1.sgeg.shenhua.cc/eccl_library/alpine-java:jdk8u202
+FROM alpine-java:jdk8u202
 VOLUME /tmp
 #时区设置
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
