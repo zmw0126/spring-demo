@@ -1,0 +1,6 @@
+
+logging:
+    level:
+        org.springframework.web: debug
+        org.mybatis: debug
+        com.eccl.cloud.admin.dao: debug

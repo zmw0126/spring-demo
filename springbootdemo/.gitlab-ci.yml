@@ -1,0 +1,60 @@
+# This file is a template, and might need editing before it works on your project.
+# Official framework image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/node/tags/
+image: maven:3.6.2-jdk-8
+
+variables:
+  # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
+  # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true"
+  # DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay
+  DOCKER_TLS_CERTDIR: "/certs"
+
+
+services:
+- name: docker:dind
+  entrypoint: ["dockerd-entrypoint.sh", "--insecure-registry", "reg1.sgeg.shenhua.cc"]
+
+
+stages:
+  - buildjar
+  - buildimage
+
+cache:
+  paths:
+    - target/
+    - .m2/repository
+
+job 1:
+  tags:
+    - eccl-devops-test-runner-02
+  only:
+   - tags
+
+  stage: buildjar
+  script:
+    - if [ ! -f ci_settings.xml ];
+        then echo "CI settings missing\! ";
+      fi
+    - mvn -s ci_settings.xml clean
+    - mvn -s ci_settings.xml $MAVEN_OPTS -Dmaven.test.skip=true package
+
+job 2:
+  tags:
+    - eccl-devops-test-runner-02
+  only:
+   - tags
+
+  image: docker
+  stage: buildimage
+  before_script:
+    - docker info
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin  "$CI_REGISTRY"
+
+  script:
+    - docker build -t $CI_REGISTRY/devops/demo/eccl/cloud-demo:latest .
+    - docker push $CI_REGISTRY/devops/demo/eccl/cloud-demo:latest
+
+
+ 

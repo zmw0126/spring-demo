@@ -1,0 +1,6 @@
+
+logging:
+    level:
+        org.springframework.web: info
+        org.mybatis: info
+        com.eccl.cloud.admin.dao: info

@@ -1,0 +1,14 @@
+image: maven:3.6.2-jdk-8
+
+
+buildjar:
+  tags:
+    - eccl-devops-test-runner-02
+
+
+  only:
+    - tags
+  script:
+    - mvn -s ci_settings.xml clean
+    - mvn -s ci_settings.xml versions:set -DnewVersion=$CI_COMMIT_TAG
+    - mvn -s ci_settings.xml deploy -DaltDeploymentRepository=eccl::default::http://mvn.services.apps/repository/eccl-release/
